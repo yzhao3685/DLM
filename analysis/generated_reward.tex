@@ -1,0 +1,189 @@
+
+
+\subsection{Focus on the most elderly by age distribution.}
+
+
+\begin{lstlisting}
+Ground truth base: lambda agent_feats, state: state*.1 + if_(state) * 10.0 * agent_feats.age_51_to_60
+0: state * (agent_feats.age_51_to_60 or (agent_feats.age_51_to_60 and agent_feats.days_to_first_call >= 10)) 
+1: state * (agent_feats.age_51_to_60 or agent_feats.ages41_to_50) 
+2: state * agent_feats.age_51_to_60 
+3: 2 * state * (agent_feats.age_51_to_60 or (agent_feats.ages41_to_50 and agent_feats.to_be_called730pm_930pm)) 
+4: state * agent_feats.ages41_to_50 or state * agent_feats.age_51_to_60 
+5: state * (agent_feats.age_51_to_60 or agent_feats.ages41_to_50) + 1 
+6: 2*state + 20 * (agent_feats.age_51_to_60 and state) 
+7: state * (agent_feats.ages41_to_50 or agent_feats.age_51_to_60) 
+8: state * (agent_feats.age_51_to_60 or (agent_feats.ages41_to_50 and agent_feats.age_51_to_60)) 
+9: state * (agent_feats.age_51_to_60 or agent_feats.ages41_to_50) 
+
+\end{lstlisting}
+\subsection{The lowest income\_bracket distribution tail is very important, focus heavily on the top 12.5\%.}
+
+
+\begin{lstlisting}
+Ground truth base: lambda agent_feats, state: state + if_(state) * HEAVILY_MODIFIER * agent_feats.second_least_income
+0: state * max(0, agent_feats.highest_income_bracket - agent_feats.no_or_least_income) 
+1: state * (agent_feats.third_highest_income_bracket or agent_feats.second_highest_income_bracket or agent_feats.highest_income_bracket) 
+2: state * max(0, agent_feats.null - 0.875) * (agent_feats.highest_income_bracket or agent_feats.second_highest_income_bracket or agent_feats.third_highest_income_bracket) 
+3: state * ((agent_feats.second_least_income and not (agent_feats.no_or_least_income)) or (agent_feats.third_lowest_income_bracket and not (agent_feats.second_least_income)) or (agent_feats.fourth_lowest_income_bracket and not (agent_feats.third_lowest_income_bracket)) or (agent_feats.middle_income_bracket and not (agent_feats.fourth_lowest_income_bracket)) or (agent_feats.third_highest_income_bracket and not (agent_feats.middle_income_bracket)) or (agent_feats.second_highest_income_bracket or agent_feats.highest_income_bracket)) 
+4: state * (agent_feats.to_be_called730pm_930pm or agent_feats.no_or_least_income) or (agent_feats.second_least_income and agent_feats.third_lowest_income_bracket and agent_feats.fourth_lowest_income_bracket and agent_feats.middle_income_bracket and agent_feats.third_highest_income_bracket and agent_feats.second_highest_income_bracket and agent_feats.highest_income_bracket) 
+5: (agent_feats.highest_income_bracket and state * 8) - (agent_feats.no_or_least_income and state * 4) 
+6: state * (5*agent_feats.highest_income_bracket - (agent_feats.no_or_least_income and not(agent_feats.second_least_income or agent_feats.third_lowest_income_bracket or agent_feats.fourth_lowest_income_bracket or agent_feats.middle_income_bracket or agent_feats.third_highest_income_bracket or agent_feats.second_highest_income_bracket))) 
+7: 100000 * state * (agent_feats.third_highest_income_bracket or agent_feats.second_highest_income_bracket or agent_feats.highest_income_bracket) 
+8: state * 100 * agent_feats.highest_income_bracket**2 
+9: state * (agent_feats.second_highest_income_bracket and agent_feats.highest_income_bracket) 
+
+\end{lstlisting}
+\subsection{Select solely those who speak Hindi to analyze how this would affect the calls made to our beneficiaries.}
+
+
+\begin{lstlisting}
+Ground truth base: lambda agent_feats, state: state*.1 * if_(agent_feats.speaks_hindi)
+0: state * agent_feats.speaks_hindi 
+1: state * (agent_feats.speaks_hindi and not (agent_feats.speaks_marathi or agent_feats.speaks_gujurati or agent_feats.speaks_kannada)) 
+2: (2 * state * agent_feats.speaks_hindi) + (3 * state) 
+3: state * (agent_feats.speaks_hindi and (not agent_feats.speaks_marathi and not agent_feats.speaks_gujurati and not agent_feats.speaks_kannada)) 
+4: state * agent_feats.speaks_hindi 
+5: state*(agent_feats.speaks_hindi) 
+6: state * agent_feats.speaks_hindi 
+7: 1.2 * state * agent_feats.speaks_hindi 
+8: state * (agent_feats.speaks_hindi and (agent_feats.speaks_hindi or (not agent_feats.speaks_hindi and not agent_feats.speaks_marathi and not agent_feats.speaks_gujurati and not agent_feats.speaks_kannada))) 
+9: state * 2 * agent_feats.speaks_hindi 
+
+\end{lstlisting}
+\subsection{Focus only on both the young and elderly.}
+
+
+\begin{lstlisting}
+Ground truth base: lambda agent_feats, state: state * if_(agent_feats.ages_51_to_60 or agent_feats.ages_10_to_20)
+0: state * (agent_feats.ages10_to_20 or agent_feats.age_51_to_60) 
+1: state * (agent_feats.ages10_to_20 and agent_feats.age_51_to_60) 
+2: state * (agent_feats.ages10_to_20 or agent_feats.age_51_to_60) 
+3: state * (agent_feats.ages10_to_20 or (agent_feats.ages41_to_50 and agent_feats.age_51_to_60)) 
+4: state * (agent_feats.ages41_to_50 or agent_feats.ages10_to_20) 
+5: state * ((agent_feats.age_51_to_60 and not agent_feats.ages10_to_20) or (agent_feats.ages10_to_20 and not agent_feats.age_51_to_60)) 
+6: state * ((agent_feats.ages10_to_20 or agent_feats.ages41_to_50) and not(agent_feats.ages_21_to_30 or agent_feats.ages_31_to_40)) 
+7: state*(agent_feats.ages10_to_20 and agent_feats.age_51_to_60) 
+8: state * ((agent_feats.ages10_to_20 and agent_feats.ages41_to_50) or (agent_feats.age_51_to_60 and agent_feats.ages41_to_50)) 
+9: state * (agent_feats.ages10_to_20 or agent_feats.age_51_to_60) 
+
+\end{lstlisting}
+\subsection{Weigth the lowest income\_bracket groups, the lowest earners in the population.}
+
+
+\begin{lstlisting}
+Ground truth base: lambda agent_feats, state: state + if_(state) * 10.0 * if_(agent_feats.least_income_bracket or agent_feats.second_least_income or agent_feats.third_lowest_income_bracket)
+0: state * (1 - agent_feats.no_or_least_income - agent_feats.second_least_income) 
+1: state * (1-agent_feats.no_or_least_income) * (1-agent_feats.second_least_income) * (1-agent_feats.third_lowest_income_bracket) * (1-agent_feats.fourth_lowest_income_bracket) * (1-agent_feats.middle_income_bracket) * (1-agent_feats.third_highest_income_bracket) * (1-agent_feats.second_highest_income_bracket) 
+2: state * (not agent_feats.no_or_least_income or not agent_feats.second_least_income) 
+3: state * (agent_feats.no_or_least_income or agent_feats.second_least_income or agent_feats.third_lowest_income_bracket or agent_feats.fourth_lowest_income_bracket or agent_feats.middle_income_bracket or agent_feats.third_highest_income_bracket or agent_feats.second_highest_income_bracket or agent_feats.highest_income_bracket) 
+4: 100 * state * agent_feats.no_or_least_income 
+5: 25 + state * agent_feats.no_or_least_income + (50 * state * agent_feats.second_least_income) 
+6: state * (agent_feats.no_or_least_income or agent_feats.second_least_income or agent_feats.third_lowest_income_bracket or agent_feats.fourth_lowest_income_bracket or agent_feats.middle_income_bracket or agent_feats.third_highest_income_bracket) 
+7: (state * agent_feats.no_or_least_income) or (state * agent_feats.second_least_income) 
+8: state * (5 - (agent_feats.no_or_least_income or agent_feats.second_least_income)) 
+9: max(1.0, state*(1.1 if agent_feats.no_or_least_income or agent_feats.second_least_income else agent_feats.third_lowest_income_bracket or agent_feats.fourth_lowest_income_bracket or agent_feats.middle_income_bracket or agent_feats.third_highest_income_bracket or agent_feats.second_highest_income_bracket or agent_feats.highest_income_bracket)) 
+
+\end{lstlisting}
+\subsection{Combine the distributions of 'age' and 'education' to heavily give precedence to low income impoverished youth.}
+
+\begin{lstlisting}
+
+Ground truth base: lambda agent_feats, state: state*.1 + if_(state) * 10.0 * if_(agent_feats.ages_10_to_20 and agent_feats.education_level_1)
+0: state * (agent_feats.no_or_least_income and ((agent_feats.ages10_to_20 or agent_feats.ages_21_to_30) and (agent_feats.education_level_1 or agent_feats.education_level_2))) 
+1: state * (agent_feats.no_or_least_income and agent_feats.education_level5 and agent_feats.ages10_to_20) 
+2: state * (agent_feats.ages41_to_50 and agent_feats.education_level_1 and agent_feats.no_or_least_income and agent_feats.days_to_first_call > 15) + state * (agent_feats.ages41_to_50 and agent_feats.education_level_2 and agent_feats.second_least_income and agent_feats.days_to_first_call > 15) + state * (agent_feats.ages41_to_50 and agent_feats.education_level_3 and agent_feats.third_lowest_income_bracket and agent_feats.days_to_first_call > 15) 
+3:(state and (agent_feats.no_or_least_income or (agent_feats.education_level_6 and agent_feats.ages10_to_20))) 
+4:state * (   (agent_feats.education_level_1 and agent_feats.no_or_least_income) or (agent_feats.education_level_2 and agent_feats.second_least_income) or (agent_feats.education_level_3 and agent_feats.third_lowest_income_bracket) or (agent_feats.education_level_4 and agent_feats.fourth_lowest_income_bracket)  ) 
+5: state * (agent_feats.ages10_to_20 and (agent_feats.education_level_6 or agent_feats.education_level_7) and agent_feats.no_or_least_income) 
+6: 100 * state * (agent_feats.ages10_to_20 and (agent_feats.education_level_1 or agent_feats.education_level_3 or agent_feats.education_level5) and agent_feats.no_or_least_income) 
+7: 2*state*(agent_feats.no_or_least_income and (agent_feats.ages41_to_50 or agent_feats.age_51_to_60 or agent_feats.speaks_hindi) and (agent_feats.education_level_1 or agent_feats.education_level_2 or agent_feats.education_level_3)) 
+8: state * (agent_feats.no_or_least_income and (agent_feats.education_level_1 or agent_feats.education_level_2 or agent_feats.education_level_3)) 
+9: state * (agent_feats.no_or_least_income and ((agent_feats.ages10_to_20 or agent_feats.ages_21_to_30) and (agent_feats.education_level_1 or agent_feats.education_level_2 or agent_feats.education_level_3))) 
+
+\end{lstlisting}
+\subsection{Advantage those who prefer being called between 12:30pm-3:30pm and are registered at an NGO.}
+
+
+\begin{lstlisting}
+Ground truth base: lambda agent_feats, state: state*.1 + if_(state) * 10.0 * if_(agent_feats.called1030am_to_1230pm and agent_feats.ngo)
+0: state * (agent_feats.ngo and agent_feats.called1230_to_330) * (agent_feats.ages10_to_20 or agent_feats.ages_21_to_30 or agent_feats.ages_31_to_40) 
+1: state * agent_feats.ngo * agent_feats.called1230_to_330 * agent_feats.age_51_to_60 * agent_feats.speaks_hindi 
+2: state * (agent_feats.called1230_to_330 and agent_feats.ngo) 
+3: state * (agent_feats.called1230_to_330 + (agent_feats.ngo and agent_feats.called1230_to_330)) 
+4:(state and (agent_feats.called1230_to_330 or agent_feats.ngo)) + (2*state*agent_feats.called1230_to_330*agent_feats.ngo)
+5:state * (agent_feats.called1230_to_330 and (agent_feats.ngo or not agent_feats.called1230_to_330))
+6: state * (agent_feats.ngo and agent_feats.called1230_to_330) + state * (agent_feats.ngo and agent_feats.ages_21_to_30 and not agent_feats.ages_31_to_40 and not agent_feats.ages41_to_50) 
+7: state * (agent_feats.ngo and agent_feats.called1230_to_330 and (agent_feats.ages10_to_20 or agent_feats.ages_21_to_30 or agent_feats.ages_31_to_40 or agent_feats.ages41_to_50)) 
+8: state * (agent_feats.ngo and agent_feats.called1230_to_330 and ((agent_feats.to_be_called830am_to_1030am or agent_feats.to_be_called1030am_1230pm) or (not agent_feats.to_be_called830am_to_1030am and not agent_feats.to_be_called1030am_1230pm))) 
+9:state * (agent_feats.ngo and agent_feats.called1230_to_330 and agent_feats.ages41_to_50 or (agent_feats.ngo and agent_feats.called1230_to_330))
+
+\end{lstlisting}
+\subsection{Prefer the income\_bracket bounds for the middle 40\% of the population.}
+
+
+\begin{lstlisting}
+Ground truth base: lambda agent_feats, state: state*.1 + if_(state) * 10.0 * if_(agent_feats.fourth_lowest_income_bracket or agent_feats.middle_income_bracket or agent_feats.third_highest_incom_bracket)
+0:state * (agent_feats.second_least_income or agent_feats.third_lowest_income_bracket or agent_feats.fourth_lowest_income_bracket or agent_feats.middle_income_bracket or agent_feats.third_highest_income_bracket) 
+1: state * ((agent_feats.second_least_income or agent_feats.third_lowest_income_bracket or agent_feats.fourth_lowest_income_bracket or agent_feats.middle_income_bracket) and not (agent_feats.no_or_least_income or agent_feats.third_highest_income_bracket or agent_feats.second_highest_income_bracket or agent_feats.highest_income_bracket)) 
+2: state * (agent_feats.second_least_income or agent_feats.third_lowest_income_bracket or agent_feats.fourth_lowest_income_bracket or agent_feats.middle_income_bracket) 
+3: state * ((agent_feats.fourth_lowest_income_bracket or agent_feats.middle_income_bracket) and not (agent_feats.second_least_income or agent_feats.third_lowest_income_bracket or agent_feats.third_highest_income_bracket or agent_feats.second_highest_income_bracket or agent_feats.highest_income_bracket)) 
+4: state * (agent_feats.second_least_income or agent_feats.third_lowest_income_bracket or agent_feats.fourth_lowest_income_bracket or agent_feats.middle_income_bracket) 
+5: state * (agent_feats.third_lowest_income_bracket and agent_feats.fourth_lowest_income_bracket and agent_feats.middle_income_bracket) 
+6: state * (agent_feats.third_lowest_income_bracket and agent_feats.fourth_lowest_income_bracket and agent_feats.middle_income_bracket and agent_feats.third_highest_income_bracket) 
+7:state * agent_feats.fourth_lowest_income_bracket
+8: state * (agent_feats.second_least_income and agent_feats.third_lowest_income_bracket and agent_feats.fourth_lowest_income_bracket and agent_feats.middle_income_bracket and not(agent_feats.no_or_least_income or agent_feats.third_highest_income_bracket or agent_feats.second_highest_income_bracket or agent_feats.highest_income_bracket)) 
+9: state * ((agent_feats.second_least_income and agent_feats.third_lowest_income_bracket and agent_feats.fourth_lowest_income_bracket and agent_feats.middle_income_bracket and not agent_feats.third_highest_income_bracket) or (agent_feats.second_least_income and agent_feats.third_lowest_income_bracket and agent_feats.fourth_lowest_income_bracket and agent_feats.middle_income_bracket and agent_feats.third_highest_income_bracket)) 
+
+\end{lstlisting}
+\subsection{Fixate on those Marathi-speakers with middle-aged folks.}
+
+
+\begin{lstlisting}
+Ground truth base: lambda agent_feats, state: state*.1 + if_(state) * 10.0 * if_(agent_feats.speaks_marathi and (agent_feats.ages31_to_40 or agent_feats.ages41_to_50))
+0: state * (agent_feats.speaks_marathi and (agent_feats.ages_21_to_30 or agent_feats.ages_31_to_40 or agent_feats.ages41_to_50)) 
+1: state * (agent_feats.speaks_marathi and agent_feats.ages_31_to_40 and agent_feats.called530pm_to_730pm) 
+2: state * (agent_feats.speaks_marathi and agent_feats.ages_31_to_40) 
+3: 2 * state and (18 and agent_feats.speaks_marathi and agent_feats.ages_31_to_40 and agent_feats.phone_owner_husband) 
+4: state * (agent_feats.speaks_marathi and agent_feats.ages_31_to_40 and agent_feats.education_level_7) 
+5: state * (agent_feats.speaks_marathi and agent_feats.ages_31_to_40) 
+6: 2*state*(agent_feats.speaks_marathi and ((agent_feats.ages_31_to_40 or agent_feats.ages41_to_50) or (agent_feats.ages_21_to_30 and agent_feats.age_51_to_60))) 
+7: state * agent_feats.speaks_marathi * agent_feats.ages41_to_50 
+8: 1 + 5*state + 40*(state and agent_feats.speaks_marathi and agent_feats.ages_31_to_40) + 10*agent_feats.ages_21_to_30 
+9: state * (agent_feats.speaks_marathi and (agent_feats.ages_31_to_40 or agent_feats.ages41_to_50)) 
+
+\end{lstlisting}
+\subsection{Give more attention for beneficiaries who likely work early in the morning and late at night.}
+
+
+\begin{lstlisting}
+Ground truth base: lambda agent_feats, state: state*.1+ if_(state) * 10.0 * if_(agent_feats.to_be_called830am_to1030am or agent_feats.called_1230pm_to_330pm)
+0: state * (agent_feats.to_be_called830am_to_1030am or agent_feats.to_be_called730pm_930pm) 
+1: state * (agent_feats.to_be_called830am_to_1030am or agent_feats.to_be_called730pm_930pm) 
+2: state * (agent_feats.to_be_called830am_to_1030am or agent_feats.to_be_called730pm_930pm) 
+3: 10 * state * (agent_feats.to_be_called830am_to_1030am or agent_feats.to_be_called730pm_930pm) 
+4: state * (agent_feats.to_be_called830am_to_1030am and agent_feats.to_be_called730pm_930pm) 
+5: state * (agent_feats.to_be_called830am_to_1030am or agent_feats.to_be_called730pm_930pm) 
+6: state * ((agent_feats.called1230_to_330 or agent_feats.to_be_called330pm_to_530pm) and (agent_feats.to_be_called830am_to_1030am or agent_feats.to_be_called730pm_930pm)) 
+7: state * (((agent_feats.to_be_called830am_to_1030am and agent_feats.to_be_called730pm_930pm) or (agent_feats.to_be_called1030am_1230pm and agent_feats.called1230_to_330)) or (agent_feats.to_be_called330pm_to_530pm and agent_feats.called530pm_to_730pm)) 
+8: state * ((agent_feats.to_be_called830am_to_1030am or agent_feats.to_be_called730pm_930pm) or (agent_feats.to_be_called1030am_1230pm or agent_feats.called530pm_to_730pm) or (agent_feats.called1230_to_330 or agent_feats.to_be_called330pm_to_530pm)) 
+9: state*(agent_feats.to_be_called830am_to_1030am or agent_feats.to_be_called730pm_930pm) 
+
+\end{lstlisting}
+\subsection{Infer technical challenges in reaching the phone that could indicate 'at-risk' beneficiaries and give preference.}
+
+
+\begin{lstlisting}
+Ground truth base: lambda agent_feats, state: state*.1+ if_(state) * 10.0 * if_((agent_feats.phone_owner_husband or agent_feats.phone_owner_family))
+0: state * (agent_feats.ages41_to_50 or agent_feats.ngo) 
+1: state * ((agent_feats.education_level_1 or agent_feats.education_level_2) and agent_feats.highest_income_bracket) 
+2: state * (agent_feats.speaks_hindi and agent_feats.highest_income_bracket and agent_feats.phone_owner_woman or agent_feats.speaks_gujurati and agent_feats.to_be_called830am_to_1030am and agent_feats.to_be_called730pm_930pm) 
+3: state * ((not agent_feats.ages10_to_20) and (agent_feats.speaks_hindi or agent_feats.speaks_marathi)) 
+4: state * ((agent_feats.enrollment_gestational_age < 37) and (agent_feats.days_to_first_call > 15) or (agent_feats.to_be_called1030am_1230pm and agent_feats.speaks_marathi) or (agent_feats.enrollment_delivery_status and not agent_feats.ages_21_to_30)) 
+5: state + 5 * (agent_feats.ages10_to_20 or agent_feats.education_level5 or agent_feats.to_be_called1030am_1230pm) 
+6: state * ((not agent_feats.phone_owner_woman) or agent_feats.days_to_first_call > 7) 
+7: state * ((agent_feats.education_level_2 or agent_feats.education_level_1) and (agent_feats.to_be_called1030am_1230pm or agent_feats.called1230_to_330)) 
+8: state * (1.2*agent_feats.age_51_to_60 + (agent_feats.live_births_count == 0) + agent_feats.ngo + agent_feats.armman) 
+9: state*(agent_feats.enrollment_delivery_status and ((agent_feats.ages10_to_20 or agent_feats.ages_21_to_30 or agent_feats.ages_31_to_40 or agent_feats.ages41_to_50) or (agent_feats.phone_owner_woman and not agent_feats.to_be_called830am_to_1030am and not agent_feats.to_be_called1030am_1230pm))) 
+
+\end{lstlisting}
