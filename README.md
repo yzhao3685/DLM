@@ -1,5 +1,3 @@
-# robust_rmab
-
 ## Installation and run
 ```
 conda create -n py311 python=3.11                                                             
