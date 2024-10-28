@@ -21,18 +21,4 @@ python run/gemini.py
 ## Train base rewards
 ```python run/gemini.py --config '{"reward_from": "base"}' --wandb | tee base-01-28.log```
 
-
-## Setup
-
-Main file for PreFeRMAB, the main algorithm is `agent_oracle.py`
-
-- Clone the repo:
-- Install the repo:
-- `pip3 install -e .`
-- Create the directory structure:
-- `bash make_dirs.sh`
-
-To run Synthetic dataset from the paper, run 
-`bash run/job.run_rmabppo_counterexample.sh`
-
 Code adapted from https://github.com/killian-34/RobustRMAB, the github repo accompanying the paper "Restless and Uncertain: Robust Policies for Restless Bandits via Deep Multi-Agent Reinforcement Learning" in UAI 2023. 
